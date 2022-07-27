@@ -20,4 +20,6 @@ ORDER BY teacher;
   res.rows.forEach(row => {
     console.log(`${row.cohort}: ${row.teacher}`);
   })
+
+  
 });
