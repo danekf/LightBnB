@@ -161,7 +161,8 @@ exports.getAllReservations = getAllReservations;
   let queryString = `
   SELECT properties.*, avg(property_reviews.rating) as average_rating
   FROM properties
-  JOIN property_reviews ON properties.id = property_id `;
+  JOIN property_reviews ON properties.id = property_id 
+  `;
 
   if (options.city) {
     queryParams.push(`%${options.city}%`);
@@ -170,17 +171,33 @@ exports.getAllReservations = getAllReservations;
 
   if(options.owner_id){
     queryParams.push(`${options.owner_id}`);
-    queryString += `AND cost_per_night > $${queryParams.length} `
+    if (queryString.includes("WHERE")){
+      queryString += `AND owner_id = $${queryParams.length} `
+    }
+    else {
+      queryString += `WHERE owner_id = $${queryParams.length} `
+    }
   }
+
 
   if(options.minimum_price_per_night){
     queryParams.push(`${options.minimum_price_per_night}`);
+    if (queryString.includes("WHERE")){
     queryString += `AND cost_per_night > $${queryParams.length} `
+    }
+    else{
+      queryString += `WHERE cost_per_night > $${queryParams.length} `
+    }
   }
 
   if(options.maximum_price_per_night){
     queryParams.push(`${options.maximum_price_per_night}`);
-    queryString += `AND cost_per_night > $${queryParams.length} `
+    if (queryString.includes("WHERE")){
+    queryString += `AND cost_per_night < $${queryParams.length} `
+    }
+    else {
+      queryString += `WHERE cost_per_night < $${queryParams.length} `
+    }
   }
 
 
@@ -192,7 +209,7 @@ exports.getAllReservations = getAllReservations;
     queryParams.push(`${options.minimum_rating}`);
     queryString += `HAVING avg(property_reviews.rating) >= $${queryParams.length} `
   }
-  
+
   queryParams.push(limit);
   queryString +=`
   ORDER BY cost_per_night
@@ -204,7 +221,7 @@ exports.getAllReservations = getAllReservations;
 
   return pool.query(queryString, queryParams)
     .then((result) => {
-      console.log(result.rows);
+      // console.log(result.rows);
       return result.rows;
     })
     .catch((err) => {
