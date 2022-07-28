@@ -48,7 +48,7 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
-  let id;
+
   return pool
     .query(
       `SELECT name, email, password, id 
@@ -63,7 +63,7 @@ const getUserWithId = function(id) {
         else{
           user = null;
         }
-        return Promise.resolve(id);
+        return Promise.resolve(user);
     })
     .catch((err) => {
       console.log(err.message);
@@ -83,11 +83,31 @@ const getUserWithId = function(id) {
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser =  function(user) {
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
+  console.log(user.name);
+  return pool
+  .query(`
+    INSERT INTO users (
+      name, email, password) 
+      VALUES (
+      $1, $2, $3)
+      RETURNING *`, [user.name, user.email, user.password])
+  .then((result) => {
+      if (result){
+        console.log(result.rows);
+        return Promise.resolve(result);
+      }
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+
+  // const userId = Object.keys(users).length + 1;
+  // user.id = userId;
+  // users[userId] = user;
+  // console.log(user);
+  // return Promise.resolve(user);
 }
+
 exports.addUser = addUser;
 
 /// Reservations
