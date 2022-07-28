@@ -19,16 +19,40 @@ const pool = new Pool({
  */
 const getUserWithEmail = function(email) {
   let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
-    } else {
-      user = null;
-    }
-  }
-  return Promise.resolve(user);
-}
+  return pool
+    .query(
+      `SELECT name, email, password, id 
+      FROM users
+      WHERE email = $1` ,
+      [email])
+    .then((result) => {
+        if (result){
+          user = result.rows[0];
+          console.log(result.rows[0]);
+        }
+        else{
+          user = null;
+        }
+        return Promise.resolve(user);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+};
+
+//     let user;
+//   for (const userId in users) {
+//     user = users[userId];  
+//     if (user.email.toLowerCase() === email.toLowerCase()) {
+//       break;
+//     } else {
+//       user = null;
+//     }
+//   }
+//   console.log(user);
+//   return Promise.resolve(user);
+// }
+
 exports.getUserWithEmail = getUserWithEmail;
 
 /**
