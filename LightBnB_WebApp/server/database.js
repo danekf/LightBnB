@@ -38,20 +38,7 @@ const getUserWithEmail = function(email) {
     .catch((err) => {
       console.log(err.message);
     });
-};
-
-//     let user;
-//   for (const userId in users) {
-//     user = users[userId];  
-//     if (user.email.toLowerCase() === email.toLowerCase()) {
-//       break;
-//     } else {
-//       user = null;
-//     }
-//   }
-//   console.log(user);
-//   return Promise.resolve(user);
-// }
+}
 
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -61,9 +48,33 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
-  return Promise.resolve(users[id]);
-}
-exports.getUserWithId = getUserWithId;
+  let id;
+  return pool
+    .query(
+      `SELECT name, email, password, id 
+      FROM users
+      WHERE id = $1` ,
+      [id])
+    .then((result) => {
+        if (result){
+          user = result.rows[0];
+          console.log(result.rows[0]);
+        }
+        else{
+          user = null;
+        }
+        return Promise.resolve(id);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+};
+
+
+
+  //   return Promise.resolve(users[id]);
+// }
+  exports.getUserWithId = getUserWithId;
 
 
 /**
